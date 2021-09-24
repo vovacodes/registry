@@ -2,6 +2,7 @@ import fs from "node:fs";
 import process from "node:process";
 import anchor from "@project-serum/anchor";
 import commander from "commander";
+import fetch from "node-fetch";
 
 const cli = new commander.Command();
 
@@ -11,8 +12,18 @@ cli
   .description("publish the package to registry")
   .action(publish);
 cli.command("info").description("get the package info").action(info);
-cli.command("register").description("register an account").action(register);
+cli
+  .command("register")
+  .description("register an account")
+  .requiredOption(
+    "--pubkey <string>",
+    "author's public key to associate with the account name"
+  )
+  .arguments("<username>", "GitHub username to use as the author account name")
+  .action(register);
 
+cli.showHelpAfterError();
+cli.showSuggestionAfterError();
 cli.parse(process.argv);
 
 async function publish() {
@@ -72,9 +83,40 @@ async function info() {
   console.log("Authority:", packageAccountData.authority.toString());
 }
 
-async function register() {
+/**
+ * @param username {string}
+ * @param options {{ pubkey: string }}
+ */
+async function register(username, options) {
+  const { pubkey } = options;
+
   const provider = anchor.Provider.local();
-  console.log(anchor.utils.bytes.bs58.encode(provider.wallet.payer.secretKey));
+
+  const oracleResponse = await fetch(
+    "https://us-central1-github-data-oracle.cloudfunctions.net/githubOracle",
+    {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+      },
+      body: JSON.stringify({
+        username,
+        keypair: Array.from(provider.wallet.payer.secretKey),
+        pubkey,
+      }),
+    }
+  );
+
+  if (oracleResponse.status === 200) {
+    console.log(await oracleResponse.text());
+    console.log("✅ Registered the author account.");
+    console.log(`🧑 Name:   ${username}`);
+    console.log(`🔑 Pubkey: ${pubkey}`);
+  } else {
+    console.log(
+      `❌ Failed to register the author account:\n${await oracleResponse.text()}`
+    );
+  }
 }
 
 function getRegistryProgram() {

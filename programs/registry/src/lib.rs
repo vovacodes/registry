@@ -73,7 +73,7 @@ pub struct RegisterAccounts<'info> {
     #[account(
         init,
         payer = authority,
-        seeds = ["DROPME7".as_bytes(), "authors".as_bytes(), register_args.name.as_bytes()],
+        seeds = ["DROPME11".as_bytes(), "authors".as_bytes(), register_args.name.as_bytes()],
         bump = register_args.bump,
         space = 8 + std::mem::size_of::<AuthorAccountData>()
     )]

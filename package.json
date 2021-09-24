@@ -1,12 +1,13 @@
 {
     "type": "module",
     "scripts": {
-        "start": "node app/cli.js info",
+        "start": "node app/cli.js publish",
         "test": "mocha -t 1000000 tests/"
     },
     "dependencies": {
         "@project-serum/anchor": "^0.16.1",
-        "commander": "^2.20.3"
+        "commander": "^8.2.0",
+        "node-fetch": "^3.0.0"
     },
     "devDependencies": {
         "chai": "^4.3.4",

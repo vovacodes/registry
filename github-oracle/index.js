@@ -90,7 +90,7 @@ exports.githubOracle = async (req, res) => {
 
   const [authorAddress, bump] = await PublicKey.findProgramAddress(
     [
-      utils.bytes.utf8.encode("DROPME7"),
+      utils.bytes.utf8.encode("DROPME11"),
       utils.bytes.utf8.encode("authors"),
       utils.bytes.utf8.encode(username),
     ],
@@ -117,7 +117,7 @@ exports.githubOracle = async (req, res) => {
     return;
   }
 
-  res.status(200).send("Verified");
+  res.status(200).send("Registered");
 };
 
 /** @return {Promise<Connection>} */
