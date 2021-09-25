@@ -89,16 +89,12 @@ exports.githubOracle = async (req, res) => {
   );
 
   const [authorAddress, bump] = await PublicKey.findProgramAddress(
-    [
-      utils.bytes.utf8.encode("DROPME11"),
-      utils.bytes.utf8.encode("authors"),
-      utils.bytes.utf8.encode(username),
-    ],
+    [utils.bytes.utf8.encode("authors"), utils.bytes.utf8.encode(username)],
     REGISTRY_PROGRAM_ID
   );
 
   try {
-    await program.rpc.register(
+    await program.rpc.registerAuthor(
       { bump, name: username },
       {
         accounts: {
@@ -117,7 +113,7 @@ exports.githubOracle = async (req, res) => {
     return;
   }
 
-  res.status(200).send("Registered");
+  res.status(200).send(authorAddress.toString());
 };
 
 /** @return {Promise<Connection>} */

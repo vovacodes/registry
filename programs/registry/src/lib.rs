@@ -22,7 +22,10 @@ pub mod registry {
         Ok(())
     }
 
-    pub fn register(ctx: Context<RegisterAccounts>, register_args: RegisterArgs) -> ProgramResult {
+    pub fn register_author(
+        ctx: Context<RegisterAuthorAccounts>,
+        register_args: RegisterAuthorArgs,
+    ) -> ProgramResult {
         let author_account = &mut ctx.accounts.author;
         author_account.authority = ctx.accounts.authority.key();
         author_account.name = ArrayString::try_from_bytes(&register_args.name.as_bytes()).map_err(
@@ -32,7 +35,19 @@ pub mod registry {
             },
         )?;
 
-        msg!("Created author account {:?}", ctx.accounts.author.key());
+        msg!("Registered author account {:?}", ctx.accounts.author.key());
+        Ok(())
+    }
+
+    pub fn unregister_author(ctx: Context<UnregisterAuthorAccounts>) -> ProgramResult {
+        // Account closing logic is declared with anchor annotations,
+        // so we don't need to write any code here, the framework will take care of it.
+
+        msg!(
+            "Closing author account {:?} and transferring rent to the `authority` {:?}",
+            ctx.accounts.author.key(),
+            ctx.accounts.authority.key()
+        );
         Ok(())
     }
 }
@@ -45,7 +60,7 @@ pub struct PublishArgs {
 }
 
 #[derive(AnchorSerialize, AnchorDeserialize, Debug, Eq, PartialEq, Clone)]
-pub struct RegisterArgs {
+pub struct RegisterAuthorArgs {
     pub bump: u8,
     pub name: String,
 }
@@ -68,18 +83,18 @@ pub struct PublishAccounts<'info> {
 }
 
 #[derive(Accounts)]
-#[instruction(register_args: RegisterArgs)]
-pub struct RegisterAccounts<'info> {
+#[instruction(register_args: RegisterAuthorArgs)]
+pub struct RegisterAuthorAccounts<'info> {
     #[account(
         init,
         payer = authority,
-        seeds = ["DROPME11".as_bytes(), "authors".as_bytes(), register_args.name.as_bytes()],
+        seeds = ["authors".as_bytes(), register_args.name.as_bytes()],
         bump = register_args.bump,
         space = 8 + std::mem::size_of::<AuthorAccountData>()
     )]
     pub author: Account<'info, AuthorAccountData>,
 
-    /// The account to use as the "owner" of the author name.
+    /// The account to use as the `authority` of the author account.
     pub authority: Signer<'info>,
 
     #[account(
@@ -89,6 +104,16 @@ pub struct RegisterAccounts<'info> {
     pub oracle: AccountInfo<'info>,
 
     pub system_program: Program<'info, System>,
+}
+
+#[derive(Accounts)]
+pub struct UnregisterAuthorAccounts<'info> {
+    #[account(mut, close = authority, has_one = authority)]
+    pub author: Account<'info, AuthorAccountData>,
+
+    /// The author account's `authority`.
+    #[account(signer)]
+    pub authority: AccountInfo<'info>,
 }
 
 #[account]
