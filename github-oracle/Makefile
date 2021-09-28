@@ -2,11 +2,9 @@ idl/registry.json:
 	mkdir -p idl
 	cp ../target/idl/registry.json ./idl/registry.json
 
-#start: idl/registry.json
-#	npx functions-framework --target=githubOracle
-
+start: export KEYPAIR ?= $(shell cat ./oracle_test_keypair.json)
 start: idl/registry.json
-	node --inspect node_modules/@google-cloud/functions-framework --target=githubOracle
+	npx functions-framework --target=githubOracle
 
 deploy: idl/registry.json
 	gcloud functions deploy githubOracle --runtime nodejs16 --trigger-http --allow-unauthenticated

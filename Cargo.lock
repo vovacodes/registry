@@ -768,6 +768,7 @@ dependencies = [
  "anchor-lang",
  "borsh",
  "borsh-derive",
+ "cfg-if 1.0.0",
 ]
 
 [[package]]

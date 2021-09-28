@@ -3,6 +3,11 @@ import process from "node:process";
 import anchor, { utils } from "@project-serum/anchor";
 import commander from "commander";
 import fetch from "node-fetch";
+import { stringFromArrayString } from "./utils.js";
+
+const ORACLE_URL = process.env.LOCAL_TEST
+  ? "http://localhost:8080"
+  : "https://us-central1-github-data-oracle.cloudfunctions.net/githubOracle";
 
 const version = JSON.parse(
   fs.readFileSync(new URL("../package.json", import.meta.url)).toString()
@@ -106,20 +111,17 @@ async function register(username, options) {
 
   const provider = anchor.Provider.local();
 
-  const oracleResponse = await fetch(
-    "https://us-central1-github-data-oracle.cloudfunctions.net/githubOracle",
-    {
-      method: "POST",
-      headers: {
-        "content-type": "application/json",
-      },
-      body: JSON.stringify({
-        username,
-        keypair: Array.from(provider.wallet.payer.secretKey),
-        pubkey,
-      }),
-    }
-  );
+  const oracleResponse = await fetch(ORACLE_URL, {
+    method: "POST",
+    headers: {
+      "content-type": "application/json",
+    },
+    body: JSON.stringify({
+      username,
+      keypair: Array.from(provider.wallet.payer.secretKey),
+      pubkey,
+    }),
+  });
   const responseText = await oracleResponse.text();
 
   if (oracleResponse.status === 200) {
@@ -159,7 +161,7 @@ function getLocalProvider() {
   return anchor.Provider.local(anchor.web3.clusterApiUrl("devnet"));
 }
 
-/** @param provider {Provider} */
+/** @param provider {import("@project-serum/anchor").Provider} */
 function getRegistryProgram(provider) {
   const idl = JSON.parse(
     fs.readFileSync(
@@ -170,15 +172,4 @@ function getRegistryProgram(provider) {
   const programId = new anchor.web3.PublicKey(idl.metadata.address);
 
   return new anchor.Program(idl, programId, provider);
-}
-
-/**
- * @param arrayString {{ bytes: Array, len: import("@project-serum/anchor").BN }}
- * @return {string}
- */
-function stringFromArrayString(arrayString) {
-  const decoder = new TextDecoder();
-  return decoder.decode(
-    Uint8Array.from(arrayString.bytes.slice(0, arrayString.len.toNumber()))
-  );
 }

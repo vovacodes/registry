@@ -1,9 +1,15 @@
 use anchor_lang::prelude::*;
 use std::str::FromStr;
 
-declare_id!("Hmo7aZ3yDGYiNsme2sFfhHqrbh6x8QuqXmWeVQtqYwGa");
+cfg_if::cfg_if! {
+    if #[cfg(feature = "local_test")] {
+        const ORACLE_PUBKEY: &str = "H8JbkMcu35zRTShU3Sy3usNnUUJymR3wHZ6XvWFPv9TY";
+    } else {
+        const ORACLE_PUBKEY: &str = "FzPR9pz93ecai3shwEh9WrSSLsskgjsm1dxV2DtnL1Se";
+    }
+}
 
-const ORACLE_PUBKEY: &str = "H8JbkMcu35zRTShU3Sy3usNnUUJymR3wHZ6XvWFPv9TY";
+declare_id!("Hmo7aZ3yDGYiNsme2sFfhHqrbh6x8QuqXmWeVQtqYwGa");
 
 #[program]
 pub mod registry {
@@ -95,7 +101,7 @@ pub struct RegisterAuthorAccounts<'info> {
     pub author: Account<'info, AuthorAccountData>,
 
     /// The account to use as the `authority` of the author account.
-    pub authority: Signer<'info>,
+    pub authority: AccountInfo<'info>,
 
     #[account(
         signer,

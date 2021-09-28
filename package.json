@@ -2,8 +2,7 @@
     "version": "0.1.0",
     "type": "module",
     "scripts": {
-        "start": "node app/cli.js publish",
-        "test": "mocha -t 1000000 tests/"
+        "start": "node app/cli.js publish"
     },
     "dependencies": {
         "@project-serum/anchor": "^0.16.1",
@@ -12,6 +11,7 @@
     },
     "devDependencies": {
         "chai": "^4.3.4",
+        "concurrently": "^6.2.1",
         "mocha": "^9.1.1",
         "prettier": "^2.4.0"
     }

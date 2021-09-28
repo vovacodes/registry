@@ -2,8 +2,8 @@
 url = "https://anchor.projectserum.com"
 
 [provider]
-cluster = "devnet"
+cluster = "localnet"
 wallet = "/Users/wzrdzl/.config/solana/id.json"
 
 [scripts]
-test = "npm test"
+test = "npx mocha -t 1000000 tests/"
