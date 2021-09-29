@@ -16,6 +16,9 @@ deploy:
 
 build-and-deploy: build deploy
 
+deploy-oracle:
+	make -C ./github-oracle deploy
+
 start:
 	npm start
 

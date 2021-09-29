@@ -93,7 +93,7 @@ pub struct PublishAccounts<'info> {
 pub struct RegisterAuthorAccounts<'info> {
     #[account(
         init,
-        payer = authority,
+        payer = payer,
         seeds = ["authors".as_bytes(), register_args.name.as_bytes()],
         bump = register_args.bump,
         space = 8 + std::mem::size_of::<AuthorAccountData>()
@@ -102,6 +102,9 @@ pub struct RegisterAuthorAccounts<'info> {
 
     /// The account to use as the `authority` of the author account.
     pub authority: AccountInfo<'info>,
+
+    /// Payer can either be the `authority` or any other account.
+    pub payer: Signer<'info>,
 
     #[account(
         signer,

@@ -100,7 +100,8 @@ exports.githubOracle = async (req, res) => {
         accounts: {
           author: authorAddress,
           oracle: ORACLE_KEYPAIR.publicKey,
-          authority: payerKeypair.publicKey,
+          authority: authorPubkey,
+          payer: payerKeypair.publicKey,
           systemProgram: web3.SystemProgram.programId,
         },
         signers: [ORACLE_KEYPAIR],
